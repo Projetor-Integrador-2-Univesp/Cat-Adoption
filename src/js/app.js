@@ -159,8 +159,7 @@ function CatCard({ cat }) {
         h("div", { className: "d-flex align-items-start justify-content-between gap-2" }, 
           h(Card.Title, { as: "h3", className: "mb-0" }, `${getCatGender(cat.sexo)} - ${cat.cor || "Pelagem especial"}`), 
           h("span", { className: "cat-age" }, cat.idade ? `${cat.idade} mes(es)` : "Ciclo reservado")), 
-          h("span", { className: "cat-vibe" }, `Vibe: ${vibe}`), h(Card.Text, null, cat.descricao || description), 
-          h(SectionButton, { id: "como-adotar", className: "button-primary w-100 mt-auto" }, "Sentir essa conexão")));
+          h("span", { className: "cat-vibe" }, `Vibe: ${vibe}`), h(Card.Text, null, cat.descricao || description), h(SectionButton, { id: "como-adotar", className: "button-primary w-100 mt-auto" }, "Sentir essa conexão")));
 }
 
 function CatGridState({ message, action }) {
