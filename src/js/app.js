@@ -159,7 +159,7 @@ function CatCard({ cat }) {
         h("div", { className: "d-flex align-items-start justify-content-between gap-2" }, 
           h(Card.Title, { as: "h3", className: "mb-0" }, `${getCatGender(cat.sexo)} - ${cat.cor || "Pelagem especial"}`), 
           h("span", { className: "cat-age" }, cat.idade ? `${cat.idade} mes(es)` : "Ciclo reservado")), 
-          h("span", { className: "cat-vibe" }, `Vibe: ${vibe}`), h(Card.Text, null, cat.descricao || description), h(SectionButton, { id: "como-adotar", className: "button-primary w-100 mt-auto" }, "Sentir essa conexão")));
+          h("span", { className: "cat-vibe" }, `Vibe: ${vibe}`), h(Card.Text, null, cat.descricao || description), h (SectionButton, { id: "como-adotar", className: "button-primary w-100 mt-auto" }, "Sentir essa conexão")));
 }
 
 function CatGridState({ message, action }) {
@@ -186,26 +186,18 @@ function AnimalsSection() {
     return () => { window.clearTimeout(timeout); controller.abort(); };
   }, []);
   
-  const message = 
-    status === "loading" ? "Consultando a vitrine de almas felinas. Em instantes, as conexões disponíveis aparecem por aqui." : 
-    status === "empty" ? "No momento não há gatos cadastrados para exibir. Entre em contato para saber sobre novos resgates e novas conexões." : "Não foi possível carregar os gatos agora. Tente novamente em instantes ou fale com o Lar Bastet.";
-
+const message = status === "loading" ? "Consultando a vitrine de almas felinas. Em instantes, as conexões disponíveis aparecem por aqui." : status === "empty" ? "No momento não há gatos cadastrados para exibir. Entre em contato para saber sobre novos resgates e novas conexões." : "Não foi possível carregar os gatos agora. Tente novamente em instantes ou fale com o Lar Bastet.";
   return h("section", { className: "section featured-section section-screen", id: "animais" }, h(Container, null,
     h(Row, { className: "align-items-end g-3 mb-3" },
-      h(Col, { lg: 8 }, h("div", { className: "section-heading mb-0 reveal" }, 
-        h("p", { className: "eyebrow" }, "Animais"), h("h2", null, "Conheça felinos por temperamento, energia e história."))),
-      h(Col, { lg: 4, className: "text-lg-end reveal" }, 
-        (SectionButton, { id: "como-adotar", className: "button-accent animals-adoption-link" }, "Começar adoção"))
+      h(Col, { lg: 8 }, h("div", { className: "section-heading mb-0 reveal" }, h("p", { className: "eyebrow" }, "Animais"), h("h2", null, "Conheça felinos por temperamento, energia e história."))),
+      h(Col, { lg: 4, className: "text-lg-end reveal" }, h(SectionButton, { id: "como-adotar", className: "button-accent animals-adoption-link" }, "Começar adoção"))
     ),
-
     h(Row, { className: "g-3 g-lg-4 mb-4", "aria-label": "Categorias de energia dos gatos" },
-      energyGuides.map(([title, text]) => h(Col, { sm: 6, xl: 3, key: title }, h(Card, { className: "vibe-card reveal h-100" }, 
-        h(Card.Body, null, h(Card.Title, { as: "h3" }, title), h(Card.Text, { className: "mb-0" }, text)))))
+      energyGuides.map(([title, text]) => h(Col, { sm: 6, xl: 3, key: title }, h(Card, { className: "vibe-card reveal h-100" }, h(Card.Body, null, h(Card.Title, { as: "h3" }, title), h(Card.Text, { className: "mb-0" }, text)))))
     ),
     h(Row, { className: "g-4" }, status === "ready"
       ? cats.map((cat, index) => h(Col, { sm: 6, lg: 4, xl: 3, key: cat.id_pet || cat.id || index }, h(CatCard, { cat })))
-      : h(Col, { md: 6, lg: 4 }, h(CatGridState, { message, action: status !== "loading" ? 
-        h(SectionButton, { id: "contato", className: "button-ghost w-100 mt-auto", variant: "outline-light" }, "Falar com o projeto") : null }))
+      : h(Col, { md: 6, lg: 4 }, h(CatGridState, { message, action: status !== "loading" ? h(SectionButton, { id: "contato", className: "button-ghost w-100 mt-auto", variant: "outline-light" }, "Falar com o projeto") : null }))
     )
   ));
 }
