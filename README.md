@@ -93,4 +93,4 @@ Desenvolvido como parte fundamental do sistema para automatizar a entrada de nov
 ### Funcionalidades:
 - **Cadastro de Felinos:** Registro estruturado com nome, idade e características.
 - **Banco de Dados Relacional:** Implementação em SQLite para persistência dos dados de adoção.
-- **Painel Administrativo:** Interface Django para gerenciamento rápido pela equipe do Lar Bastet.
+- **Painel Administrativo:** Interface Django para gerenciamento rápido pela equipe da clínica.

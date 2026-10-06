@@ -4,11 +4,127 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Como Adotar | Lar Bastet</title>
-  <meta http-equiv="refresh" content="0; url=./index.html#como-adotar">
-  <link rel="canonical" href="./index.html#como-adotar">
+  <link rel="icon" type="image/png" sizes="32x32" href="./src/img/logo.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body>
-  <p>Redirecionando para <a href="./index.html#como-adotar">Como adotar</a>.</p>
-  <script>window.location.replace("./index.html#como-adotar");</script>
+  <header class="site-header">
+    <div class="container topbar">
+      <a class="brand" href="./index.html">
+        <img src="./src/img/logo.jpeg" alt="Logo do Lar Bastet" class="brand-logo">
+        <div class="brand-copy">
+          <strong>Lar Bastet</strong>
+          <span>Campo Limpo Paulista/SP</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Principal">
+        <a href="./animais.html">Animais</a>
+        <a href="./como-adotar.html">Como adotar</a>
+        <a href="./contato.html">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="container page-panel">
+        <div>
+          <p class="eyebrow">Como adotar</p>
+          <h1>Preencha seus dados para iniciar o processo.</h1>
+          <p>
+            Para adotar um dos nossos gatos, é necessário preencher um formulário de intenção de adoção.
+            Este formulário nos ajuda a conhecer melhor os interessados e a garantir que nossos gatos sejam adotados por lares responsáveis e amorosos.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container form-card">
+        <h3>Formulário de intenção de adoção</h3>
+
+        <form class="form-grid" id="form-adocao">
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input id="nome" name="nome" type="text" placeholder="Digite seu nome completo">
+          </div>
+
+          <div class="field">
+            <label for="telefone">Telefone</label>
+            <input id="telefone" name="telefone" type="tel" placeholder="(00) 00000-0000">
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="voce@email.com">
+          </div>
+
+          <div class="field">
+            <label for="animal">Gato de interesse</label>
+            <input id="animal" name="animal" type="text" placeholder="Ex.: Nala">
+          </div>
+
+          <div class="field">
+            <label for="mensagem">Fale sobre sua rotina e sobre o lar</label>
+            <textarea id="mensagem" name="mensagem" placeholder="Conte se mora em casa ou apartamento, se há telas de protecao e como sera o cuidado com o gato."></textarea>
+          </div>
+
+          <button class="button button-primary" type="submit">Enviar dados</button>
+        </form>
+        <p>
+          Após o envio do formulário, nossa equipe entrará em contato para dar continuidade ao processo de adoção, que inclui uma visita prévia ao lar e a assinatura de um termo de responsabilidade.
+        </p>
+      </div>
+    </section>
+  </main>
+
+<!-- script para enviar solicitação de adoção para a dashboard --> 
+<script>
+  const API_BASE_URL =
+    window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+      ? 'http://127.0.0.1:8000'
+      : 'https://larbastet.onrender.com';
+
+  document.getElementById('form-adocao').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const dados = {
+      nome: document.getElementById('nome').value,
+      telefone: document.getElementById('telefone').value,
+      email: document.getElementById('email').value,
+      animal: document.getElementById('animal').value,
+      mensagem: document.getElementById('mensagem').value,
+    };
+
+    try {
+      const resposta = await fetch(`${API_BASE_URL}/api/solicitacoes-adocao/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dados),
+      });
+
+      const resultado = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(resultado.erro || 'Erro ao enviar formulário.');
+      }
+
+      alert('Solicitação enviada com sucesso! O Lar Bastet entrará em contato.');
+      event.target.reset();
+
+    } catch (erro) {
+      alert(erro.message);
+    }
+  });
+</script>
 </body>
 </html>

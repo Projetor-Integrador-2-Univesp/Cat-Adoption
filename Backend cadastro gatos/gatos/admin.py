@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Pet, Adotante, Adocao
+from .models import Pet, Adotante, Adocao, SolicitacaoAdocao
 
 # Configuração para o Pet aparecer com mais detalhes na lista
 class PetAdmin(admin.ModelAdmin):
@@ -17,7 +17,13 @@ class AdocaoAdmin(admin.ModelAdmin):
     list_display = ('pet', 'adotante', 'data_adocao')
     list_filter = ('data_adocao',)
 
+class SolicitacaoAdocaoAdmin(admin.ModelAdmin):
+    list_display = ('nome','telefone','email','animal_interesse','status','data_envio')
+    list_filter = ('status','data_envio')
+    search_fields = ('nome','telefone','email','animal_interesse')
+
 # Registar os modelos no painel Admin
 admin.site.register(Pet, PetAdmin)
 admin.site.register(Adotante, AdotanteAdmin)
 admin.site.register(Adocao, AdocaoAdmin)
+admin.site.register(SolicitacaoAdocao, SolicitacaoAdocaoAdmin)

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | Lar Bastet</title>
+  <style>
+  :root {
+    --bg: #f8efe4;
+    --bg-soft: #fff8f0;
+    --card: #ffffff;
+    --card-soft: #fffaf5;
+    --primary: #7a4d2f;
+    --primary-dark: #4f2f1e;
+    --primary-light: #d8b894;
+    --accent: #c7814c;
+    --danger: #b33a3a;
+    --danger-dark: #8d2424;
+    --success: #2f7d4f;
+    --text: #2d2118;
+    --muted: #76685f;
+    --border: #ead8c3;
+    --shadow: 0 16px 40px rgba(91, 57, 36, 0.12);
+    --radius: 18px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(216, 184, 148, 0.35), transparent 34rem),
+      linear-gradient(135deg, #f8efe4 0%, #fffaf4 45%, #f4e2cd 100%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: white;
+    padding: 22px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 12px 30px rgba(79, 47, 30, 0.18);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header strong {
+    display: block;
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+  }
+
+  header div div {
+    margin-top: 4px;
+    color: #f4dfc7;
+    font-size: 0.95rem;
+  }
+
+  header a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 10px 18px;
+    border-radius: 999px;
+    transition: 0.2s ease;
+  }
+
+  header a:hover {
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+  }
+
+  main {
+    width: min(1280px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 34px 0 48px;
+  }
+
+  .message {
+    margin-bottom: 18px;
+    font-weight: bold;
+    padding: 12px 16px;
+    border-radius: 14px;
+    min-height: 22px;
+  }
+
+  .message:empty {
+    display: none;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+    padding: 10px;
+    border-radius: 999px;
+    box-shadow: 0 10px 28px rgba(91, 57, 36, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .tabs button {
+    border: none;
+    background: transparent;
+    color: var(--primary-dark);
+    padding: 12px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 800;
+    transition: 0.2s ease;
+  }
+
+  .tabs button:hover {
+    background: #f1ddc6;
+    transform: translateY(-1px);
+  }
+
+  .tabs button.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 8px 20px rgba(122, 77, 47, 0.28);
+  }
+
+  section {
+    display: none;
+    animation: fadeIn 0.24s ease;
+  }
+
+  section.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h2 {
+    color: var(--primary-dark);
+    font-size: 1.45rem;
+    margin: 8px 0 18px;
+  }
+
+  .card {
+    background: linear-gradient(180deg, var(--card), var(--card-soft));
+    padding: 26px;
+    border-radius: var(--radius);
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+  }
+
+  .card h2 {
+    margin-top: 0;
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 900px;
+  }
+
+  form textarea,
+  form input[type="file"],
+  form button {
+    grid-column: 1 / -1;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d8c3ad;
+    background: white;
+    color: var(--text);
+    font: inherit;
+    outline: none;
+    transition: 0.2s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(199, 129, 76, 0.14);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  input[type="file"] {
+    background: #fff7ee;
+    border-style: dashed;
+  }
+
+  button {
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .primary {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 13px 22px;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(122, 77, 47, 0.22);
+    transition: 0.2s ease;
+  }
+
+  .primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(122, 77, 47, 0.28);
+  }
+
+  .danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-weight: 700;
+    transition: 0.2s ease;
+  }
+
+  .danger:hover {
+    background: var(--danger-dark);
+    transform: translateY(-1px);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+  }
+
+  thead {
+    position: static;
+  }
+
+  th,
+  td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #f0e1d2;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.95rem;
+  }
+
+  th {
+    background: #ead8c3;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  tbody tr {
+    transition: 0.16s ease;
+  }
+
+  tbody tr:hover {
+    background: #fff7ee;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  td select {
+    min-width: 140px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+
+  img.pet-img {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 3px solid #f1ddc6;
+    background: #f5e7d7;
+  }
+
+  #pets-list td:nth-child(6),
+  #adocoes-list td:nth-child(3),
+  #solicitacoes-list td:nth-child(6) {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  #solicitacoes-list td:nth-child(5) {
+    max-width: 280px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  #solicitacoes-list td:nth-child(1),
+  #adotantes-list td:nth-child(1),
+  #pets-list td:nth-child(2) {
+    font-weight: 800;
+    color: var(--primary-dark);
+  }
+
+  @media (max-width: 900px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    main {
+      width: min(100% - 20px, 1280px);
+      padding-top: 24px;
+    }
+
+    .tabs {
+      border-radius: 22px;
+    }
+
+    .tabs button {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    form {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    thead {
+      position: static;
+    }
+  }
+
+  @media (max-width: 560px) {
+    header strong {
+      font-size: 1.15rem;
+    }
+
+    header div div {
+      font-size: 0.85rem;
+    }
+
+    h2 {
+      font-size: 1.22rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      font-size: 0.88rem;
+    }
+
+    img.pet-img {
+      width: 58px;
+      height: 58px;
+    }
+  }
+
+  /* hot fix tabelas bugando: evita cabeçalhos flutuando e mantém rolagem horizontal */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+    background: white;
+    margin-bottom: 28px;
+  }
+
+  .table-wrap table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    display: table;
+    white-space: normal;
+  }
+
+  .table-wrap thead {
+    position: static;
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    white-space: normal;
+  }
+
+  .table-wrap th {
+    white-space: nowrap;
+  }
+
+  .table-wrap td:last-child,
+  .table-wrap th:last-child {
+    text-align: center;
+  }
+
+  .table-wrap .danger {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrap table {
+      min-width: 820px;
+      display: table;
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .table-wrap table {
+      min-width: 760px;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>Dashboard Lar Bastet</strong>
+      <div>Gerenciamento de gatos, adotantes, adoções e solicitações</div>
+    </div>
+
+    <a href="/logout/">Sair</a>
+  </header>
+
+  <main>
+    <div class="message" id="message"></div>
+
+    <div class="tabs">
+      <button class="active" onclick="showTab('pets', this)">Gatos</button>
+      <button onclick="showTab('adotantes', this)">Adotantes</button>
+      <button onclick="showTab('adocoes', this)">Adoções</button>
+      <button onclick="showTab('solicitacoes', this)">Solicitações de adoção</button>
+    </div>
+
+    <section id="pets" class="active">
+      <div class="card">
+        <h2>Cadastrar gato</h2>
+
+        <form id="pet-form">
+          <input name="nome" placeholder="Nome do gato" required>
+
+          <input name="idade" type="number" placeholder="Idade">
+
+          <select name="sexo" required>
+            <option value="">Sexo</option>
+            <option value="M">Macho</option>
+            <option value="F">Fêmea</option>
+          </select>
+
+          <input name="cor" placeholder="Cor">
+
+          <select name="status">
+            <option value="disponivel">Disponível</option>
+            <option value="em_tratamento">Em tratamento</option>
+            <option value="adotado">Adotado</option>
+          </select>
+
+          <textarea name="descricao" placeholder="Descrição"></textarea>
+
+          <input name="foto" type="file" accept="image/*">
+
+          <button class="primary" type="submit">Salvar gato</button>
+        </form>
+      </div>
+
+      <h2>Gatos cadastrados</h2>
+      <div class="table-wrap">
+        <table>
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nome</th>
+            <th>Sexo</th>
+            <th>Idade</th>
+            <th>Cor</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="pets-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="adotantes">
+      <div class="card">
+        <h2>Cadastrar adotante</h2>
+
+        <form id="adotante-form">
+          <input name="cpf" placeholder="CPF" required>
+          <input name="nome" placeholder="Nome completo" required>
+          <input name="email" type="email" placeholder="Email">
+          <input name="telefone" placeholder="Telefone">
+          <textarea name="endereco" placeholder="Endereço"></textarea>
+
+          <button class="primary" type="submit">Salvar adotante</button>
+        </form>
+      </div>
+
+      <h2>Adotantes cadastrados</h2>
+      <div class="table-wrap">
+        <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="adotantes-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="adocoes">
+      <div class="card">
+        <h2>Registrar adoção</h2>
+
+        <form id="adocao-form">
+          <select name="pet_id" id="adocao-pet" required>
+            <option value="">Selecione o gato</option>
+          </select>
+
+          <select name="adotante_cpf" id="adocao-adotante" required>
+            <option value="">Selecione o adotante</option>
+          </select>
+
+          <textarea name="observacoes" placeholder="Observações"></textarea>
+
+          <button class="primary" type="submit">Registrar adoção</button>
+        </form>
+      </div>
+
+      <h2>Adoções registradas</h2>
+      <div class="table-wrap">
+        <table>
+        <thead>
+          <tr>
+            <th>Gato</th>
+            <th>Adotante</th>
+            <th>Data</th>
+            <th>Observações</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="adocoes-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="solicitacoes">
+      <h2>Solicitações de adoção</h2>
+      <div class="table-wrap">
+        <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Animal de interesse</th>
+            <th>Mensagem</th>
+            <th>Status</th>
+            <th>Data de envio</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="solicitacoes-list"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    function showMessage(text, isError = false) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.style.color = isError ? '#b23b3b' : '#2f6b35';
+
+      setTimeout(() => {
+        message.textContent = '';
+      }, 3000);
+    }
+
+    function showTab(tabId, button) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      document.querySelectorAll('.tabs button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      button.classList.add('active');
+    }
+
+  async function requestJson(url, options = {}) {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      let errorMessage = `Erro ${response.status} ao processar solicitação.`;
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.erro || errorMessage;
+      } catch {
+        const text = await response.text();
+        if (text) {
+          errorMessage = text.slice(0, 300);
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
+
+    async function carregarPets() {
+      const pets = await requestJson('/api/dashboard/pets/');
+      const tbody = document.getElementById('pets-list');
+      const selectPet = document.getElementById('adocao-pet');
+
+      tbody.innerHTML = '';
+      selectPet.innerHTML = '<option value="">Selecione o gato</option>';
+
+      pets.forEach(pet => {
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              ${pet.foto ? `<img class="pet-img" src="${pet.foto}" alt="${pet.nome}">` : 'Sem foto'}
+            </td>
+            <td>${pet.nome}</td>
+            <td>${pet.sexo_display}</td>
+            <td>${pet.idade || '-'}</td>
+            <td>${pet.cor || '-'}</td>
+            <td>${pet.status_display}</td>
+            <td>
+              <button class="danger" onclick="removerPet(${pet.id})">Remover</button>
+            </td>
+          </tr>
+        `;
+
+        if (pet.status === 'disponivel') {
+          selectPet.innerHTML += `
+            <option value="${pet.id}">${pet.nome}</option>
+          `;
+        }
+      });
+    }
+
+    async function carregarAdotantes() {
+      const adotantes = await requestJson('/api/dashboard/adotantes/');
+      const tbody = document.getElementById('adotantes-list');
+      const selectAdotante = document.getElementById('adocao-adotante');
+
+      tbody.innerHTML = '';
+      selectAdotante.innerHTML = '<option value="">Selecione o adotante</option>';
+
+      adotantes.forEach(adotante => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${adotante.nome}</td>
+            <td>${adotante.cpf}</td>
+            <td>${adotante.email || '-'}</td>
+            <td>${adotante.telefone || '-'}</td>
+            <td>
+              <button class="danger" onclick="removerAdotante('${adotante.cpf}')">Remover</button>
+            </td>
+          </tr>
+        `;
+
+        selectAdotante.innerHTML += `
+          <option value="${adotante.cpf}">${adotante.nome} - ${adotante.cpf}</option>
+        `;
+      });
+    }
+
+    async function carregarAdocoes() {
+      const adocoes = await requestJson('/api/dashboard/adocoes/');
+      const tbody = document.getElementById('adocoes-list');
+
+      tbody.innerHTML = '';
+
+      adocoes.forEach(adocao => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${adocao.pet.nome}</td>
+            <td>${adocao.adotante.nome}</td>
+            <td>${adocao.data_adocao}</td>
+            <td>${adocao.observacoes || '-'}</td>
+            <td>
+              <button class="danger" onclick="removerAdocao(${adocao.id})">Remover</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    document.getElementById('pet-form').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      try {
+        const formData = new FormData(event.target);
+
+        await requestJson('/api/dashboard/pets/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+          body: formData,
+        });
+
+        event.target.reset();
+        showMessage('Gato cadastrado com sucesso.');
+        carregarPets();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    });
+
+    document.getElementById('adotante-form').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      try {
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        await requestJson('/api/dashboard/adotantes/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+          },
+          body: JSON.stringify(data),
+        });
+
+        event.target.reset();
+        showMessage('Adotante cadastrado com sucesso.');
+        carregarAdotantes();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    });
+
+    document.getElementById('adocao-form').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      try {
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        await requestJson('/api/dashboard/adocoes/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+          },
+          body: JSON.stringify(data),
+        });
+
+        event.target.reset();
+        showMessage('Adoção registrada com sucesso.');
+        carregarPets();
+        carregarAdocoes();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    });
+
+    async function removerPet(id) {
+      if (!confirm('Tem certeza que deseja remover este gato?')) return;
+
+      try {
+        await requestJson(`/api/dashboard/pets/${id}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+        });
+
+        showMessage('Gato removido com sucesso.');
+        carregarPets();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    }
+
+    async function removerAdotante(cpf) {
+      if (!confirm('Tem certeza que deseja remover este adotante?')) return;
+
+      try {
+        await requestJson(`/api/dashboard/adotantes/${cpf}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+        });
+
+        showMessage('Adotante removido com sucesso.');
+        carregarAdotantes();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    }
+
+    async function removerAdocao(id) {
+      if (!confirm('Tem certeza que deseja remover esta adoção?')) return;
+
+      try {
+        await requestJson(`/api/dashboard/adocoes/${id}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+        });
+
+        showMessage('Adoção removida com sucesso.');
+        carregarPets();
+        carregarAdocoes();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    }
+
+  async function carregarSolicitacoes() {
+      const solicitacoes = await requestJson('/api/dashboard/solicitacoes/');
+      const tbody = document.getElementById('solicitacoes-list');
+
+      tbody.innerHTML = '';
+
+      solicitacoes.forEach(solicitacao => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${solicitacao.nome}</td>
+            <td>${solicitacao.telefone}</td>
+            <td>${solicitacao.email || '-'}</td>
+            <td>${solicitacao.animal_interesse || '-'}</td>
+            <td>${solicitacao.mensagem || '-'}</td>
+            <td>
+              <select onchange="alterarStatusSolicitacao(${solicitacao.id}, this.value)">
+                <option value="nova" ${solicitacao.status === 'nova' ? 'selected' : ''}>Nova</option>
+                <option value="em_analise" ${solicitacao.status === 'em_analise' ? 'selected' : ''}>Em análise</option>
+                <option value="respondida" ${solicitacao.status === 'respondida' ? 'selected' : ''}>Respondida</option>
+                <option value="recusada" ${solicitacao.status === 'recusada' ? 'selected' : ''}>Recusada</option>
+              </select>
+            </td>
+            <td>${solicitacao.data_envio}</td>
+            <td>
+            <button class="danger" onclick="removerSolicitacao(${solicitacao.id})">Remover</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+async function alterarStatusSolicitacao(id, status) {
+  try {
+    await requestJson(`/api/dashboard/solicitacoes/${id}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    showMessage('Status da solicitação atualizado.');
+    carregarSolicitacoes();
+  } catch (error) {
+    showMessage(error.message, true);
+  }
+}
+
+
+async function removerSolicitacao(id) {
+  if (!confirm('Tem certeza que deseja remover esta solicitação?')) return;
+
+  try {
+    await requestJson(`/api/dashboard/solicitacoes/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': csrftoken,
+      },
+    });
+
+    showMessage('Solicitação removida com sucesso.');
+    carregarSolicitacoes();
+  } catch (error) {
+    showMessage(error.message, true);
+  }
+}
+
+    carregarPets();
+    carregarAdotantes();
+    carregarAdocoes();
+    carregarSolicitacoes();
+  </script>
+</body>
+</html>
