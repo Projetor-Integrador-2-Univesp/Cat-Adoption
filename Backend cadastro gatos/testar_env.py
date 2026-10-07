@@ -4,12 +4,11 @@ import psycopg2
 
 load_dotenv()
 
-# Usando variáveis separadas
-host = os.getenv('SUPABASE_HOST')
-port = os.getenv('SUPABASE_PORT')
-name = os.getenv('SUPABASE_NAME')
-user = os.getenv('SUPABASE_USER')
-password = os.getenv('SUPABASE_PASSWORD')
+host = os.getenv("DB_HOST")
+port = os.getenv("DB_PORT")
+name = os.getenv("DB_NAME")
+user = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
 
 print(f"Host: {host}")
 print(f"User: {user}")
@@ -22,9 +21,11 @@ try:
         dbname=name,
         user=user,
         password=password,
-        sslmode='require'
+        sslmode="require"
     )
-    print("✅ CONEXÃO BEM SUCEDIDA!")
+
+    print("Conexão bem-sucedida!")
     conn.close()
+
 except Exception as e:
-    print(f"❌ ERRO: {e}")
+    print(f"ERRO: {e}")

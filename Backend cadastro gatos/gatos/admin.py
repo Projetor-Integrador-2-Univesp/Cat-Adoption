@@ -1,23 +1,31 @@
 from django.contrib import admin
-from .models import Pet, Adotante, Adocao
+from .models import Pet, Interesse, Interessado, Visita, Adocao
 
-# Configuração para o Pet aparecer com mais detalhes na lista
 class PetAdmin(admin.ModelAdmin):
-    list_display = ('sexo', 'cor', 'status', 'data_entrada')
+    list_display = ('nome', 'sexo', 'cor', 'status', 'data_entrada')
     list_filter = ('status', 'sexo')
-    search_fields = ('cor',)
+    search_fields = ('nome', 'cor',)
 
-# Configuração para o Adotante aparecer com CPF na lista
-class AdotanteAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'cpf', 'email', 'telefone')
-    search_fields = ('nome', 'cpf')
+class InteressadoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'cpf', 'email', 'telefone', 'tipo_residencia')
+    search_fields = ('nome', 'cpf', 'email')
 
-# Configuração para a Adoção
+class InteresseAdmin(admin.ModelAdmin):
+    list_display = ('interessado', 'pet', 'data_interesse', 'status')
+    list_filter = ('status', 'data_interesse')
+    search_fields = ('interessado_nome', 'pet_nome')
+
+class VisitaAdmin(admin.ModelAdmin):
+    list_display = ('interesse', 'data_hora', 'status')
+    list_filter = ('status', 'data_hora')
+
 class AdocaoAdmin(admin.ModelAdmin):
-    list_display = ('pet', 'adotante', 'data_adocao')
+    list_display = ('interesse', 'data_adocao')
     list_filter = ('data_adocao',)
 
 # Registar os modelos no painel Admin
 admin.site.register(Pet, PetAdmin)
-admin.site.register(Adotante, AdotanteAdmin)
+admin.site.register(Interessado, InteressadoAdmin)
+admin.site.register(Interesse, InteresseAdmin)
+admin.site.register(Visita, VisitaAdmin)
 admin.site.register(Adocao, AdocaoAdmin)
