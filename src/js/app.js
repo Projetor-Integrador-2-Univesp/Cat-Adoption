@@ -4,7 +4,7 @@ import { Button, Card, Col, Container, Form, Nav, Navbar, Row } from "react-boot
 
 const h = React.createElement;
 //Link da api das imagens e informações dos gatos
-const API_URL = "https://pet-adoption-q581.onrender.com/api/gatos/";
+const API_URL = "http://127.0.0.1:8000/api/gatos/";
 const FALLBACK_IMAGE = "./src/img/logo.jpeg";
 const navLinks = [
   { id: "animais", label: "Animais" },
@@ -202,67 +202,354 @@ const message = status === "loading" ? "Consultando a vitrine de almas felinas. 
   ));
 }
 
+
 function AdoptionSection() {
-  const [sent, setSent] = useState(false);
-  const initialFormData = {
-    nome: "",
-    telefone: "",
-    email: "",
-    interesse: "",
-    rotina: ""
-  };
+    const [sent, setSent] = useState(false);
+    const [cats, setCats] = useState([]);
+    const [catsStatus, setCatsStatus] = useState("loading");
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState(initialFormData);
-  const steps = [["1", "Sinta a conexão", "Conheça a energia do gato e perceba se ela conversa com sua rotina."], ["2", "Abra o caminho", "Preencha a intenção de adoção com suas informações e forma de contato."], ["3", "Prepare o lar", "Organize um ambiente telado, seguro, protegido e acolhedor para a chegada."]];
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((currentData) => ({ ...currentData, [name]: value }));
-  };
-
-  //envio do formulário para o WhatsApp da proprietária do Lar Bastet
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const NUMERO_WHATSAPP = "5511964984749";
-
-    const emojis = {
-      pata: String.fromCodePoint(0x1F43E),
-      perfil: String.fromCodePoint(0x1F464),
-      telefone: String.fromCodePoint(0x1F4F1),
-      email: String.fromCodePoint(0x1F4E7),
-      brilho: String.fromCodePoint(0x2728),
-      casa: String.fromCodePoint(0x1F3E1)
+    const initialFormData = {
+        nome: "",
+        telefone: "",
+        email: "",
+        pet_id: "",
+        rotina: ""
     };
-    
-    const mensagem = `${emojis.pata} *NOVA INTENÇÃO DE ADOÇÃO - LAR BASTET* ${emojis.pata}\n\n${emojis.perfil} *Nome:* ${formData.nome}\n${emojis.telefone} *Telefone de contato:* ${formData.telefone}\n${emojis.email} *E-mail:* ${formData.email}\n${emojis.brilho} *Interesse / Categoria:* ${formData.interesse}\n\n${emojis.casa} *Sobre o lar e rotina:*\n${formData.rotina}`;
-    const mensagemFormatada = encodeURIComponent(mensagem);
-    const url = `https://api.whatsapp.com/send/?phone=${NUMERO_WHATSAPP}&text=${mensagemFormatada}`;
 
-    window.open(url, "_blank");
-    setFormData(initialFormData);
-    setSent(true);
-  };
+    const [formData, setFormData] = useState(initialFormData);
 
-  //formulário
-  return h("section", { className: "section section-light section-screen", id: "como-adotar" }, h(Container, null, h(Row, { className: "g-4 align-items-start" },
-    h(Col, { lg: 5 }, h("div", { className: "adoption-box reveal" }, h("p", { className: "eyebrow" }, "Como adotar"), h("h2", null, "Adotar é um encontro que pede preparo, presença e compromisso."), h(Row, { className: "g-3 mt-1" }, steps.map(([number, title, text]) => h(Col, { sm: 4, lg: 12, key: number }, h("article", { className: "adoption-step" }, h("span", null, number), h("h3", null, title), h("p", null, text))))))),
-    h(Col, { lg: 7 }, h(Form, { className: "form-card reveal", onSubmit: handleSubmit }, h("h3", null, "Formulário de intenção de adoção"),
-     h(Row, { className: "g-3" },
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "nome" }, h(Form.Label, null, "Nome completo"), 
-        h(Form.Control, { type: "text", name: "nome", value: formData.nome, onChange: handleChange, placeholder: "Digite seu nome completo", required: true }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "telefone" }, h(Form.Label, null, "Telefone"), 
-        h(Form.Control, { type: "tel", name: "telefone", value: formData.telefone, onChange: handleChange, placeholder: "(00) 00000-0000", required: true }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "email" }, h(Form.Label, null, "Email"), 
-        h(Form.Control, { type: "email", name: "email", value: formData.email, onChange: handleChange, placeholder: "voce@email.com" }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "interesse" }, h(Form.Label, null, "Gato ou energia de interesse"), 
-        h(Form.Control, { type: "text", name: "interesse", value: formData.interesse, onChange: handleChange, placeholder: "Ex.: Nala, Guardião, Curandeiro" }))),
-      h(Col, { xs: 12 }, h(Form.Group, { controlId: "rotina" }, h(Form.Label, null, "Fale sobre sua rotina, seu lar e sua conexão"), 
-        h(Form.Control, { as: "textarea", name: "rotina", value: formData.rotina, onChange: handleChange, rows: 5, placeholder: "Conte se mora em casa ou apartamento, se há telas de proteção e como será o cuidado.", required: true })))
-      ),
-     h(Button, { type: "submit", className: "button button-primary align-self-start mt-1" }, "Enviar intenção"), 
-     sent && h("p", { className: "form-feedback mb-0" }, "Mensagem preparada. O WhatsApp será aberto em uma nova aba para enviar sua intenção.")))
-  )));
+    const steps = [
+        ["1", "Sinta a conexão", "Conheça a energia do gato e perceba se ela conversa com sua rotina."],
+        ["2", "Abra o caminho", "Preencha a intenção de adoção com suas informações e forma de contato."],
+        ["3", "Prepare o lar", "Organize um ambiente telado, seguro, protegido e acolhedor para a chegada."]
+    ];
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function loadCats() {
+            try {
+                const response = await fetch(API_URL, {
+                    signal: controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error("Não foi possível consultar os gatos.");
+                }
+
+                const data = await response.json();
+                setCats(Array.isArray(data) ? data : []);
+                setCatsStatus(Array.isArray(data) && data.length ? "ready" : "empty");
+            } catch (err) {
+                if (err.name !== "AbortError") {
+                    setCatsStatus("error");
+                }
+            }
+        }
+
+        loadCats();
+
+        return () => controller.abort();
+    }, []);
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        setFormData((currentData) => ({
+            ...currentData,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        if (submitting) return;
+
+        setError("");
+        setSent(false);
+        setSubmitting(true);
+
+        // Abre a aba durante o clique para evitar bloqueio do navegador.
+        const whatsappWindow = window.open("", "_blank");
+
+        try {
+            const response = await fetch(
+                `${new URL(API_URL).origin}/api/intencoes/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nome: formData.nome.trim(),
+                        telefone: formData.telefone.trim(),
+                        email: formData.email.trim(),
+                        pet_id: Number(formData.pet_id),
+                        rotina: formData.rotina.trim()
+                    })
+                }
+            );
+
+            const resultado = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    resultado.erro || "Não foi possível registrar a intenção."
+                );
+            }
+
+            const gatoSelecionado = cats.find(
+                (cat) => String(cat.id) === String(formData.pet_id)
+            );
+
+            const emojis = {
+                pata: String.fromCodePoint(0x1F43E),
+                perfil: String.fromCodePoint(0x1F464),
+                telefone: String.fromCodePoint(0x1F4F1),
+                email: String.fromCodePoint(0x1F4E7),
+                brilho: String.fromCodePoint(0x2728),
+                casa: String.fromCodePoint(0x1F3E1)
+            };
+
+            const mensagem =
+                `${emojis.pata} *NOVA INTENÇÃO DE ADOÇÃO - LAR BASTET* ${emojis.pata}\n\n` +
+                `${emojis.perfil} *Nome:* ${formData.nome}\n` +
+                `${emojis.telefone} *Telefone de contato:* ${formData.telefone}\n` +
+                `${emojis.email} *E-mail:* ${formData.email || "Não informado"}\n` +
+                `${emojis.brilho} *Gato escolhido:* ${gatoSelecionado?.nome || resultado.pet}\n\n` +
+                `${emojis.casa} *Sobre o lar e rotina:*\n${formData.rotina}`;
+
+            const numeroWhatsApp = "5511964984749";
+            const urlWhatsApp =
+                `https://api.whatsapp.com/send/?phone=${numeroWhatsApp}` +
+                `&text=${encodeURIComponent(mensagem)}`;
+
+            if (whatsappWindow) {
+                whatsappWindow.location.href = urlWhatsApp;
+            } else {
+                window.open(urlWhatsApp, "_blank");
+            }
+
+            setFormData(initialFormData);
+            setSent(true);
+        } catch (err) {
+            if (whatsappWindow) {
+                whatsappWindow.close();
+            }
+
+            setError(
+                err.message ||
+                "Não foi possível enviar a intenção. Tente novamente."
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return h(
+        "section",
+        {
+            className: "section section-light section-screen",
+            id: "como-adotar"
+        },
+        h(
+            Container,
+            null,
+            h(
+                Row,
+                { className: "g-4 align-items-start" },
+                h(
+                    Col,
+                    { lg: 5 },
+                    h(
+                        "div",
+                        { className: "adoption-box reveal" },
+                        h("p", { className: "eyebrow" }, "Como adotar"),
+                        h("h2", null, "Adotar é um encontro que pede preparo, presença e compromisso."),
+                        h(
+                            Row,
+                            { className: "g-3 mt-1" },
+                            steps.map(([number, title, text]) =>
+                                h(
+                                    Col,
+                                    { sm: 4, lg: 12, key: number },
+                                    h(
+                                        "article",
+                                        { className: "adoption-step" },
+                                        h("span", null, number),
+                                        h("h3", null, title),
+                                        h("p", null, text)
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                h(
+                    Col,
+                    { lg: 7 },
+                    h(
+                        Form,
+                        {
+                            className: "form-card reveal",
+                            onSubmit: handleSubmit
+                        },
+                        h("h3", null, "Formulário de intenção de adoção"),
+                        h(
+                            Row,
+                            { className: "g-3" },
+                            h(
+                                Col,
+                                { md: 6 },
+                                h(
+                                    Form.Group,
+                                    { controlId: "nome" },
+                                    h(Form.Label, null, "Nome completo"),
+                                    h(Form.Control, {
+                                        type: "text",
+                                        name: "nome",
+                                        value: formData.nome,
+                                        onChange: handleChange,
+                                        placeholder: "Digite seu nome completo",
+                                        maxLength: 100,
+                                        required: true
+                                    })
+                                )
+                            ),
+                            h(
+                                Col,
+                                { md: 6 },
+                                h(
+                                    Form.Group,
+                                    { controlId: "telefone" },
+                                    h(Form.Label, null, "Telefone"),
+                                    h(Form.Control, {
+                                        type: "tel",
+                                        name: "telefone",
+                                        value: formData.telefone,
+                                        onChange: handleChange,
+                                        placeholder: "(00) 00000-0000",
+                                        maxLength: 20,
+                                        required: true
+                                    })
+                                )
+                            ),
+                            h(
+                                Col,
+                                { md: 6 },
+                                h(
+                                    Form.Group,
+                                    { controlId: "email" },
+                                    h(Form.Label, null, "E-mail"),
+                                    h(Form.Control, {
+                                        type: "email",
+                                        name: "email",
+                                        value: formData.email,
+                                        onChange: handleChange,
+                                        placeholder: "voce@email.com",
+                                        maxLength: 100
+                                    })
+                                )
+                            ),
+                            h(
+                                Col,
+                                { md: 6 },
+                                h(
+                                    Form.Group,
+                                    { controlId: "pet_id" },
+                                    h(Form.Label, null, "Gato que deseja adotar"),
+                                    h(
+                                        Form.Control,
+                                        {
+                                            as: "select",
+                                            name: "pet_id",
+                                            value: formData.pet_id,
+                                            onChange: handleChange,
+                                            required: true,
+                                            disabled: catsStatus !== "ready"
+                                        },
+                                        h(
+                                            "option",
+                                            { value: "" },
+                                            catsStatus === "loading"
+                                                ? "Carregando gatos..."
+                                                : catsStatus === "error"
+                                                    ? "Não foi possível carregar os gatos"
+                                                    : catsStatus === "empty"
+                                                        ? "Nenhum gato disponível"
+                                                        : "Selecione um gato"
+                                        ),
+                                        cats.map((cat) =>
+                                            h(
+                                                "option",
+                                                { key: cat.id, value: cat.id },
+                                                cat.nome || `Gato #${cat.id}`
+                                            )
+                                        )
+                                    ),
+                                    catsStatus === "error" &&
+                                    h(
+                                        "small",
+                                        { role: "alert" },
+                                        "Não foi possível carregar a lista. Atualize a página e tente novamente."
+                                    )
+                                )
+                            ),
+                            h(
+                                Col,
+                                { xs: 12 },
+                                h(
+                                    Form.Group,
+                                    { controlId: "rotina" },
+                                    h(Form.Label, null, "Fale sobre sua rotina, seu lar e sua conexão"),
+                                    h(Form.Control, {
+                                        as: "textarea",
+                                        name: "rotina",
+                                        value: formData.rotina,
+                                        onChange: handleChange,
+                                        rows: 5,
+                                        placeholder: "Conte se mora em casa ou apartamento, se há telas de proteção e como será o cuidado.",
+                                        required: true
+                                    })
+                                )
+                            )
+                        ),
+                        h(
+                            Button,
+                            {
+                                type: "submit",
+                                className: "button button-primary align-self-start mt-1",
+                                disabled: submitting || catsStatus !== "ready"
+                            },
+                            submitting ? "Registrando..." : "Enviar intenção"
+                        ),
+                        error &&
+                        h(
+                            "p",
+                            {
+                                className: "form-feedback mb-0",
+                                role: "alert"
+                            },
+                            error
+                        ),
+                        sent &&
+                        h(
+                            "p",
+                            {
+                                className: "form-feedback mb-0",
+                                role: "status"
+                            },
+                            "Intenção registrada! O WhatsApp foi aberto para você enviar a mensagem."
+                        )
+                    )
+                )
+            )
+        )
+    );
 }
-
 function HelpSection() {
   const donations = [["Chave Pix", "CNPJ: 55.183.245/0001-93"], ["Ração como cuidado", "Golden gatos ou Special Cat. Qualquer quantidade fortalece a rotina dos resgatados."], ["Itens de proteção", "Vermífugos, granulado de madeira, potes, areia, mantas e medicamentos fazem diferença real."], ["Divulgação", "Compartilhar os gatos, suas histórias e necessidades também salva vidas."]];
   return h("section", { className: "section support-section", id: "ajudar" }, 
