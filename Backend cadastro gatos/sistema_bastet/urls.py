@@ -8,4 +8,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/gatos/', views.listar_gatos),
     path('api/intencoes/', views.registrar_intencao),
+    path('api/intencoes/por-telefone/', views.localizar_intencoes_por_telefone),
+    path('api/visitas/', views.solicitar_visita),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

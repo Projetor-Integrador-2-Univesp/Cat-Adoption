@@ -120,11 +120,18 @@ function Hero() {
     h(Col, { lg: 8 }, h("div", { className: "hero-copy reveal is-visible h-100" }, 
       h("p", { className: "eyebrow" }, "Projeto independente de proteção felina"), h("h1", null, "Deixe a magia entrar no seu lar."), 
       h("p", { className: "hero-text" }, "O Lar Bastet acolhe gatos em vulnerabilidade, cuida de suas feridas visíveis e invisíveis e cria encontros de almas entre felinos resgatados e famílias preparadas para proteger. Em ", 
-      h("strong", null, "Campo Limpo Paulista/SP"), ", cada adoção é tratada como um pacto de cuidado, presença e recomeço."), 
-      h("div", { className: "d-flex flex-column flex-sm-row gap-3 mt-4" }, 
-      h(SectionButton, { id: "animais", className: "button-primary" }, "Ver animais"), 
-      h(SectionButton, { id: "como-adotar", className: "button-ghost", variant: "outline-light" }, "Como adotar")))),
-
+      h("strong", null, "Campo Limpo Paulista/SP"), ", cada adoção é tratada como um pacto de cuidado, presença e recomeço."),
+        h("div", { className: "d-flex flex-column flex-sm-row flex-wrap gap-3 mt-4" },
+            h(SectionButton, { id: "animais", className: "button-primary" }, "Ver animais"),
+            h(SectionButton, { id: "como-adotar", className: "button-ghost", variant: "outline-light" }, "Como adotar"),
+            h(Button, {
+                as: "a",
+                href: "./agendar-visita.html",
+                variant: "outline-light",
+                className: "button button-ghost"
+            }, "Já demonstrou interesse? Agende sua visita")
+        )
+    )),
     h(Col, { lg: 4 }, h("aside", { className: "hero-panel reveal is-visible h-100" }, 
       h(Card, { className: "panel-card panel-card-highlight border-0" }, 
       h(Card.Body, null, h("span", { className: "panel-label" }, "Missão"), 
@@ -205,6 +212,7 @@ const message = status === "loading" ? "Consultando a vitrine de almas felinas. 
 
 function AdoptionSection() {
     const [sent, setSent] = useState(false);
+    const [interesseId, setInteresseId] = useState(null);
     const [cats, setCats] = useState([]);
     const [catsStatus, setCatsStatus] = useState("loading");
     const [submitting, setSubmitting] = useState(false);
@@ -213,6 +221,7 @@ function AdoptionSection() {
     const initialFormData = {
         nome: "",
         telefone: "",
+        tem_whatsapp: true,
         email: "",
         pet_id: "",
         rotina: ""
@@ -257,9 +266,25 @@ function AdoptionSection() {
     const handleChange = (event) => {
         const { name, value } = event.target;
 
+        let valorFinal = value;
+
+        if (name === "telefone") {
+            const numeros = value.replace(/\D/g, "").slice(0, 11);
+
+            if (numeros.length > 7) {
+                valorFinal = `(${numeros.slice(0, 2)}) ${numeros.slice(2, numeros.length === 11 ? 7 : 6)}-${numeros.slice(numeros.length === 11 ? 7 : 6)}`;
+            } else if (numeros.length > 2) {
+                valorFinal = `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+            } else if (numeros.length > 0) {
+                valorFinal = `(${numeros}`;
+            } else {
+                valorFinal = "";
+            }
+        }
+
         setFormData((currentData) => ({
             ...currentData,
-            [name]: value
+            [name]: valorFinal
         }));
     };
 
@@ -286,6 +311,7 @@ function AdoptionSection() {
                     body: JSON.stringify({
                         nome: formData.nome.trim(),
                         telefone: formData.telefone.trim(),
+                        tem_whatsapp: formData.tem_whatsapp,
                         email: formData.email.trim(),
                         pet_id: Number(formData.pet_id),
                         rotina: formData.rotina.trim()
@@ -334,6 +360,7 @@ function AdoptionSection() {
             }
 
             setFormData(initialFormData);
+            setInteresseId(resultado.interesse_id);
             setSent(true);
         } catch (err) {
             if (whatsappWindow) {
@@ -419,21 +446,37 @@ function AdoptionSection() {
                                     })
                                 )
                             ),
+
                             h(
                                 Col,
                                 { md: 6 },
                                 h(
                                     Form.Group,
                                     { controlId: "telefone" },
-                                    h(Form.Label, null, "Telefone"),
+                                    h(Form.Label, null, "Celular com DDD"),
                                     h(Form.Control, {
                                         type: "tel",
                                         name: "telefone",
                                         value: formData.telefone,
                                         onChange: handleChange,
-                                        placeholder: "(00) 00000-0000",
-                                        maxLength: 20,
+                                        placeholder: "(19) 91234-5678",
+                                        maxLength: 15,
                                         required: true
+                                    })
+                                ),
+                                h(
+                                    Form.Group,
+                                    { controlId: "tem_whatsapp", className: "mt-2" },
+                                    h(Form.Check, {
+                                        type: "checkbox",
+                                        name: "tem_whatsapp",
+                                        label: "Este número tem WhatsApp?",
+                                        checked: formData.tem_whatsapp,
+                                        onChange: (event) =>
+                                            setFormData((currentData) => ({
+                                                ...currentData,
+                                                tem_whatsapp: event.target.checked
+                                            }))
                                     })
                                 )
                             ),
@@ -537,12 +580,24 @@ function AdoptionSection() {
                         ),
                         sent &&
                         h(
-                            "p",
+                            "div",
                             {
                                 className: "form-feedback mb-0",
                                 role: "status"
                             },
-                            "Intenção registrada! O WhatsApp foi aberto para você enviar a mensagem."
+                            h(
+                                "p",
+                                { className: "mb-2" },
+                                "Intenção registrada! O WhatsApp foi aberto para você enviar a mensagem."
+                            ),
+                            h(
+                                "a",
+                                {
+                                    href: `./agendar-visita.html?interesse_id=${interesseId}`,
+                                    className: "button button-primary d-inline-block text-decoration-none"
+                                },
+                                "Agendar uma visita"
+                            )
                         )
                     )
                 )
