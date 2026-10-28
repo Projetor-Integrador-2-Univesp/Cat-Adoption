@@ -335,6 +335,9 @@ def dashboard_adocoes(request):
         pet=pet,
         adotante=adotante,
         observacoes=observacoes,
+    #ponto de verificação
+    gatos = Pet.objects.filter(status='disponivel').values(
+        'id', 'nome', 'idade', 'sexo', 'cor', 'descricao', 'foto',
     )
 
     return JsonResponse(adocao_to_dict(adocao), status=201)

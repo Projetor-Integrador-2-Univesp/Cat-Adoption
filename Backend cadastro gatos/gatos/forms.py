@@ -1,33 +1,58 @@
-from django.db import models
+from django import forms
+from .models import Pet, Interessado, Interesse, Visita, Adocao
 
-class Gato(models.Model):
-    nome = models.CharField(max_length=100)
-    status = models.CharField(max_length=50, default="Disponível")
-    # ... outros campos do gato ...
-
-    def __str__(self):
-        return self.nome
-
-class Adotante(models.Model):
-    nome = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    telefone = models.CharField(max_length=20)
-    cpf = models.CharField(max_length=14, unique=True)
-
-    def __str__(self):
-        return self.nome
-
-class Adocao(models.Model):
-    # Relacionamentos (Chaves Estrangeiras)
-    gato = models.ForeignKey(Gato, on_delete=models.CASCADE)
-    adotante = models.ForeignKey(Adotante, on_delete=models.CASCADE)
-    data_adocao = models.DateTimeField(auto_now_add=True)
-    observacoes = models.TextField(blank=True, null=True)
-
+class PetForm(forms.ModelForm):
     class Meta:
-        verbose_name = "Adoção"
-        verbose_name_plural = "Adoções"
+            model = Pet
+            fields = [
+                'foto',
+                'nome',
+                'data_entrada',
+                'idade',
+                'sexo',
+                'cor',
+                'descricao',
+                'status',
+            ]
 
-    def __str__(self):
-        return f"{self.adotante} adotou {self.gato}"
-        
+class InteressadoForm(forms.ModelForm):
+    class Meta:
+        model = Interessado
+        fields = [
+            'nome',
+            'cpf',
+            'email',
+            'telefone',
+            'endereco',
+            'tipo_residencia'
+        ]
+
+class InteresseForm(forms.ModelForm):
+    class Meta:
+        model = Interesse
+        fields = [
+            'interessado',
+            'pet',
+            'data_interesse',
+            'status',
+            'mensagem',
+        ]
+
+class VisitaForm(forms.ModelForm):
+    class Meta:
+        model = Visita
+        fields = [
+            'interesse',
+            'data_hora',
+            'status',
+            'observacoes',
+        ]
+
+class AdocaoForm(forms.ModelForm):
+    class Meta:
+        model = Adocao
+        fields = [
+            'interesse',
+            'data_adocao',
+            'observacoes',
+        ]
