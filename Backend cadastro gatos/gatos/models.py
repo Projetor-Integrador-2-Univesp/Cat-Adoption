@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-
 class Pet(models.Model):
     SEXO_CHOICES = [
         ('M', 'Macho'),
@@ -15,10 +14,6 @@ class Pet(models.Model):
         ('adotado', 'Adotado'),
     ]
 
-    nome = models.CharField(max_length=100)
-    #foto = models.ImageField(upload_to='fotos_pets/', null=True, blank=True) 
-    foto_url = models.URLField(max_length=500, null=True, blank=True) # testando armazenamento de fotos no Supabase
-    #verificar  bucket
     foto = models.URLField(max_length=500, null=True, blank=True)
     nome = models.CharField(max_length=100, null=True, blank=True)
     data_entrada = models.DateField(default=timezone.now)
@@ -26,26 +21,6 @@ class Pet(models.Model):
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)
     cor = models.CharField(max_length=50, null=True, blank=True)
     descricao = models.TextField(max_length=500, null=True, blank=True)
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='disponivel'
-    )
-
-    usuario_cadastro = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name='pets_cadastrados'
-    )
-
-    def __str__(self):
-        return f"{self.nome} - {self.status}"
-
-    class Meta:
-        verbose_name = "Pet"
-        verbose_name_plural = "Pets"
-        
-    #ponto de verificação
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='disponivel')
 
     usuario_cadastro = models.ForeignKey(User, on_delete=models.PROTECT, related_name='pets_cadastrados')
@@ -98,55 +73,10 @@ class Visita(models.Model):
     def __str__(self):
         return f"Visita - {self.interesse}"
 
-
 class Adocao(models.Model):
-    pet = models.OneToOneField(
-        Pet,
-        on_delete=models.CASCADE,
-        related_name='adocao'
-    )
-    adotante = models.ForeignKey(
-        Adotante,
-        on_delete=models.CASCADE,
-        related_name='adocoes'
-    )
-    # ponto de verificação
     interesse = models.OneToOneField(Interesse, on_delete=models.CASCADE, null=True, blank=True)
-    #
     data_adocao = models.DateField(default=timezone.now)
     observacoes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.pet.nome} adotado por {self.adotante.nome}"
-
-    class Meta:
-        verbose_name = "Adoção"
-        verbose_name_plural = "Adoções"
-
-
-
-# Modelo para armazenar as solicitações de adoção feitas pelos usuários
-class SolicitacaoAdocao(models.Model):
-    STATUS_CHOICES = [
-        ('nova', 'Nova'),
-        ('em_analise', 'Em Análise'),
-        ('respondida', 'Respondida'),
-        ('recusada', 'Recusada'),
-    ]
-
-    nome = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=20)
-    email = models.EmailField(max_length=100, blank=True, null=True)
-    animal_interesse = models.CharField(max_length=100, blank=True, null=True)
-    mensagem = models.TextField(blank=True, null=True)
-    data_envio = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='nova')
-
-    def __str__(self):
-        return f"Solicitação de {self.nome} - {self.animal_interesse or 'Sem interesse informado'}"
-    class Meta:
-        verbose_name = "Solicitação de Adoção"
-        verbose_name_plural = "Solicitações de Adoção"
-        
-        #ponto de verificação
         return f"Adoção - {self.interesse}"
