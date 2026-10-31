@@ -13,7 +13,7 @@ class InteressadoAdmin(admin.ModelAdmin):
 class InteresseAdmin(admin.ModelAdmin):
     list_display = ('interessado', 'pet', 'data_interesse', 'status')
     list_filter = ('status', 'data_interesse')
-    search_fields = ('interessado_nome', 'pet_nome')
+    search_fields = ('interessado__nome', 'pet__nome')
 
 class VisitaAdmin(admin.ModelAdmin):
     list_display = ('interesse', 'data_hora', 'status')
