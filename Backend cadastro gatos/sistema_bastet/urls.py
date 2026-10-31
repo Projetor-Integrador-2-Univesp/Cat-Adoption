@@ -10,6 +10,7 @@ from gatos import (
     views_dashboard_fluxo,
     views_dashboard_pets,
     views_dashboard_relacoes,
+    views_publicas,
 )
 
 
@@ -68,4 +69,6 @@ urlpatterns = [
         name="dashboard_registrar_adocao",
     ),
     path("api/gatos/", views.listar_gatos),
+    path("api/intencoes/", views_publicas.registrar_intencao, name="registrar_intencao_publica"),
+    path("api/visitas/", views_publicas.solicitar_visita, name="solicitar_visita_publica"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
