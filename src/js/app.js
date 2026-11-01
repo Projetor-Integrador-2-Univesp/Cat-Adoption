@@ -4,7 +4,10 @@ import { Button, Card, Col, Container, Form, Nav, Navbar, Row } from "react-boot
 
 const h = React.createElement;
 //Link da api das imagens e informações dos gatos
-const API_URL = "https://pet-adoption-q581.onrender.com/api/gatos/";
+const API_BASE = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? "http://127.0.0.1:8000"
+  : "https://larbastet.onrender.com";
+const API_URL = `${API_BASE}/api/gatos/`;
 const FALLBACK_IMAGE = "./src/img/logo.jpeg";
 const navLinks = [
   { id: "animais", label: "Animais" },
@@ -203,64 +206,148 @@ const message = status === "loading" ? "Consultando a vitrine de almas felinas. 
 }
 
 function AdoptionSection() {
-  const [sent, setSent] = useState(false);
   const initialFormData = {
-    nome: "",
-    telefone: "",
-    email: "",
-    interesse: "",
-    rotina: ""
+    nome: "", telefone: "", email: "", pet_id: "", tipo_residencia: "", rotina: ""
   };
-
   const [formData, setFormData] = useState(initialFormData);
+  const [cats, setCats] = useState([]);
+  const [catsStatus, setCatsStatus] = useState("loading");
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [whatsAppUrl, setWhatsAppUrl] = useState("");
+  const [visitaDisponivel, setVisitaDisponivel] = useState(false);
   const steps = [["1", "Sinta a conexão", "Conheça a energia do gato e perceba se ela conversa com sua rotina."], ["2", "Abra o caminho", "Preencha a intenção de adoção com suas informações e forma de contato."], ["3", "Prepare o lar", "Organize um ambiente telado, seguro, protegido e acolhedor para a chegada."]];
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(API_URL, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Falha ao carregar os gatos.");
+        return response.json();
+      })
+      .then((data) => {
+        const lista = Array.isArray(data) ? data : [];
+        setCats(lista);
+        setCatsStatus(lista.length ? "ready" : "empty");
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") setCatsStatus("error");
+      });
+    return () => controller.abort();
+  }, []);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((currentData) => ({ ...currentData, [name]: value }));
+    setFormData((current) => ({ ...current, [name]: value }));
   };
 
-  //envio do formulário para o WhatsApp da proprietária do Lar Bastet
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const NUMERO_WHATSAPP = "5511964984749";
+    if (submitting) return;
+    setSubmitting(true);
+    setFeedback(null);
+    setWhatsAppUrl("");
+    setVisitaDisponivel(false);
 
-    const emojis = {
-      pata: String.fromCodePoint(0x1F43E),
-      perfil: String.fromCodePoint(0x1F464),
-      telefone: String.fromCodePoint(0x1F4F1),
-      email: String.fromCodePoint(0x1F4E7),
-      brilho: String.fromCodePoint(0x2728),
-      casa: String.fromCodePoint(0x1F3E1)
-    };
-    
-    const mensagem = `${emojis.pata} *NOVA INTENÇÃO DE ADOÇÃO - LAR BASTET* ${emojis.pata}\n\n${emojis.perfil} *Nome:* ${formData.nome}\n${emojis.telefone} *Telefone de contato:* ${formData.telefone}\n${emojis.email} *E-mail:* ${formData.email}\n${emojis.brilho} *Interesse / Categoria:* ${formData.interesse}\n\n${emojis.casa} *Sobre o lar e rotina:*\n${formData.rotina}`;
-    const mensagemFormatada = encodeURIComponent(mensagem);
-    const url = `https://api.whatsapp.com/send/?phone=${NUMERO_WHATSAPP}&text=${mensagemFormatada}`;
+    // A aba é aberta pelo clique para evitar o bloqueador de pop-ups.
+    const abaWhatsApp = window.open("", "_blank");
+    try {
+      const response = await fetch(`${API_BASE}/api/intencoes/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: formData.nome.trim(),
+          telefone: formData.telefone.trim(),
+          email: formData.email.trim(),
+          pet_id: Number(formData.pet_id),
+          tipo_residencia: formData.tipo_residencia,
+          rotina: formData.rotina.trim()
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.erro || "Não foi possível registrar a intenção.");
 
-    window.open(url, "_blank");
-    setFormData(initialFormData);
-    setSent(true);
+      const selecionado = cats.find((cat) => String(cat.id) === String(formData.pet_id));
+      const mensagem = `🐾 *NOVA INTENÇÃO DE ADOÇÃO - LAR BASTET* 🐾\n\n` +
+        `*Nome:* ${formData.nome}\n*Telefone:* ${formData.telefone}\n` +
+        `*E-mail:* ${formData.email || "Não informado"}\n` +
+        `*Gato escolhido:* ${selecionado?.nome || result.pet}\n` +
+        `*Residência:* ${formData.tipo_residencia}\n\n` +
+        `*Sobre o lar e rotina:*\n${formData.rotina}`;
+      const url = `https://api.whatsapp.com/send/?phone=5511964984749&text=${encodeURIComponent(mensagem)}`;
+
+      let salvoParaVisita = false;
+      try {
+        const anteriores = JSON.parse(sessionStorage.getItem("larbastet_intencoes") || "[]");
+        const registros = Array.isArray(anteriores) ? anteriores : [];
+        const outros = registros.filter((item) => item.id !== result.interesse_id);
+        outros.push({ id: result.interesse_id, pet: result.pet, token: result.token_visita });
+        sessionStorage.setItem("larbastet_intencoes", JSON.stringify(outros));
+        salvoParaVisita = true;
+      } catch {
+        // Alguns navegadores bloqueiam armazenamento; o cadastro continua válido.
+      }
+
+      if (abaWhatsApp) {
+        abaWhatsApp.location.href = url;
+      }
+      setWhatsAppUrl(url);
+      setVisitaDisponivel(salvoParaVisita);
+      setFormData(initialFormData);
+      setFeedback({ type: "success", message: "Intenção registrada! Envie a mensagem preparada no WhatsApp para concluir o contato." });
+    } catch (error) {
+      if (abaWhatsApp) abaWhatsApp.close();
+      setFeedback({ type: "error", message: error.message || "Não foi possível registrar a intenção." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  //formulário
-  return h("section", { className: "section section-light section-screen", id: "como-adotar" }, h(Container, null, h(Row, { className: "g-4 align-items-start" },
-    h(Col, { lg: 5 }, h("div", { className: "adoption-box reveal" }, h("p", { className: "eyebrow" }, "Como adotar"), h("h2", null, "Adotar é um encontro que pede preparo, presença e compromisso."), h(Row, { className: "g-3 mt-1" }, steps.map(([number, title, text]) => h(Col, { sm: 4, lg: 12, key: number }, h("article", { className: "adoption-step" }, h("span", null, number), h("h3", null, title), h("p", null, text))))))),
-    h(Col, { lg: 7 }, h(Form, { className: "form-card reveal", onSubmit: handleSubmit }, h("h3", null, "Formulário de intenção de adoção"),
-     h(Row, { className: "g-3" },
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "nome" }, h(Form.Label, null, "Nome completo"), 
-        h(Form.Control, { type: "text", name: "nome", value: formData.nome, onChange: handleChange, placeholder: "Digite seu nome completo", required: true }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "telefone" }, h(Form.Label, null, "Telefone"), 
-        h(Form.Control, { type: "tel", name: "telefone", value: formData.telefone, onChange: handleChange, placeholder: "(00) 00000-0000", required: true }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "email" }, h(Form.Label, null, "Email"), 
-        h(Form.Control, { type: "email", name: "email", value: formData.email, onChange: handleChange, placeholder: "voce@email.com" }))),
-      h(Col, { md: 6 }, h(Form.Group, { controlId: "interesse" }, h(Form.Label, null, "Gato ou energia de interesse"), 
-        h(Form.Control, { type: "text", name: "interesse", value: formData.interesse, onChange: handleChange, placeholder: "Ex.: Nala, Guardião, Curandeiro" }))),
-      h(Col, { xs: 12 }, h(Form.Group, { controlId: "rotina" }, h(Form.Label, null, "Fale sobre sua rotina, seu lar e sua conexão"), 
-        h(Form.Control, { as: "textarea", name: "rotina", value: formData.rotina, onChange: handleChange, rows: 5, placeholder: "Conte se mora em casa ou apartamento, se há telas de proteção e como será o cuidado.", required: true })))
-      ),
-     h(Button, { type: "submit", className: "button button-primary align-self-start mt-1" }, "Enviar intenção"), 
-     sent && h("p", { className: "form-feedback mb-0" }, "Mensagem preparada. O WhatsApp será aberto em uma nova aba para enviar sua intenção.")))
-  )));
+  return h("section", { className: "section section-light section-screen", id: "como-adotar" }, h(Container, null,
+    h(Row, { className: "g-4 align-items-start" },
+      h(Col, { lg: 5 }, h("div", { className: "adoption-box reveal" },
+        h("p", { className: "eyebrow" }, "Como adotar"),
+        h("h2", null, "Adotar é um encontro que pede preparo, presença e compromisso."),
+        h(Row, { className: "g-3 mt-1" }, steps.map(([number, title, text]) =>
+          h(Col, { sm: 4, lg: 12, key: number }, h("article", { className: "adoption-step" },
+            h("span", null, number), h("h3", null, title), h("p", null, text))))))),
+      h(Col, { lg: 7 }, h(Form, { className: "form-card reveal", onSubmit: handleSubmit },
+        h("h3", null, "Formulário de intenção de adoção"),
+        h(Row, { className: "g-3" },
+          h(Col, { md: 6 }, h(Form.Group, { controlId: "nome" },
+            h(Form.Label, null, "Nome completo"),
+            h(Form.Control, { name: "nome", value: formData.nome, onChange: handleChange, maxLength: 100, required: true }))),
+          h(Col, { md: 6 }, h(Form.Group, { controlId: "telefone" },
+            h(Form.Label, null, "Telefone com DDD"),
+            h(Form.Control, { type: "tel", name: "telefone", value: formData.telefone, onChange: handleChange, maxLength: 20, required: true }))),
+          h(Col, { md: 6 }, h(Form.Group, { controlId: "email" },
+            h(Form.Label, null, "E-mail (opcional)"),
+            h(Form.Control, { type: "email", name: "email", value: formData.email, onChange: handleChange, maxLength: 100 }))),
+          h(Col, { md: 6 }, h(Form.Group, { controlId: "pet_id" },
+            h(Form.Label, null, "Gato que deseja adotar"),
+            h(Form.Select, { name: "pet_id", value: formData.pet_id, onChange: handleChange, required: true, disabled: catsStatus !== "ready" },
+              h("option", { value: "" }, catsStatus === "loading" ? "Carregando gatos..." : catsStatus === "ready" ? "Selecione um gato" : "Nenhum gato disponível"),
+              ...cats.map((cat) => h("option", { key: cat.id, value: cat.id }, cat.nome || `Gato #${cat.id}`))))),
+          h(Col, { xs: 12 }, h(Form.Group, { controlId: "tipo_residencia" },
+            h(Form.Label, null, "Tipo de residência"),
+            h(Form.Select, { name: "tipo_residencia", value: formData.tipo_residencia, onChange: handleChange, required: true },
+              h("option", { value: "" }, "Selecione"),
+              h("option", { value: "casa" }, "Casa"),
+              h("option", { value: "apartamento" }, "Apartamento")))),
+          h(Col, { xs: 12 }, h(Form.Group, { controlId: "rotina" },
+            h(Form.Label, null, "Fale sobre sua rotina, seu lar e seus cuidados"),
+            h(Form.Control, { as: "textarea", name: "rotina", value: formData.rotina, onChange: handleChange, maxLength: 2000, rows: 5, required: true })))
+        ),
+        h("p", { className: "small mt-3" }, "Os dados informados serão utilizados para acompanhar seu pedido de adoção."),
+        h(Button, { type: "submit", className: "button button-primary align-self-start mt-1", disabled: submitting || catsStatus !== "ready" },
+          submitting ? "Registrando..." : "Registrar intenção e abrir WhatsApp"),
+        feedback && h("div", { className: "form-feedback mt-3", role: feedback.type === "error" ? "alert" : "status" },
+          h("p", null, feedback.message),
+          feedback.type === "success" && h("div", { className: "d-flex gap-2 flex-wrap" },
+            h("a", { href: whatsAppUrl, target: "_blank", rel: "noopener noreferrer", className: "button button-primary text-decoration-none" }, "Abrir WhatsApp"),
+            visitaDisponivel && h("a", { href: "./agendar-visita.html", className: "button button-primary text-decoration-none" }, "Solicitar visita")))
+      ))
+    )));
 }
 
 function HelpSection() {
