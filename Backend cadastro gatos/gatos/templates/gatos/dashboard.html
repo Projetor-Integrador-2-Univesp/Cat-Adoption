@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | Lar Bastet</title>
+  <style>
+  :root {
+    --bg: #f8efe4;
+    --bg-soft: #fff8f0;
+    --card: #ffffff;
+    --card-soft: #fffaf5;
+    --primary: #7a4d2f;
+    --primary-dark: #4f2f1e;
+    --primary-light: #d8b894;
+    --accent: #c7814c;
+    --danger: #b33a3a;
+    --danger-dark: #8d2424;
+    --success: #2f7d4f;
+    --text: #2d2118;
+    --muted: #76685f;
+    --border: #ead8c3;
+    --shadow: 0 16px 40px rgba(91, 57, 36, 0.12);
+    --radius: 18px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(216, 184, 148, 0.35), transparent 34rem),
+      linear-gradient(135deg, #f8efe4 0%, #fffaf4 45%, #f4e2cd 100%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: white;
+    padding: 22px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 12px 30px rgba(79, 47, 30, 0.18);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header strong {
+    display: block;
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+  }
+
+  header div div {
+    margin-top: 4px;
+    color: #f4dfc7;
+    font-size: 0.95rem;
+  }
+
+  header a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 10px 18px;
+    border-radius: 999px;
+    transition: 0.2s ease;
+  }
+
+  header a:hover {
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+  }
+
+  main {
+    width: min(1280px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 34px 0 48px;
+  }
+
+  .message {
+    margin-bottom: 18px;
+    font-weight: bold;
+    padding: 12px 16px;
+    border-radius: 14px;
+    min-height: 22px;
+  }
+
+  .message:empty {
+    display: none;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+    padding: 10px;
+    border-radius: 999px;
+    box-shadow: 0 10px 28px rgba(91, 57, 36, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .tabs button {
+    border: none;
+    background: transparent;
+    color: var(--primary-dark);
+    padding: 12px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 800;
+    transition: 0.2s ease;
+  }
+
+  .tabs button:hover {
+    background: #f1ddc6;
+    transform: translateY(-1px);
+  }
+
+  .tabs button.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 8px 20px rgba(122, 77, 47, 0.28);
+  }
+
+  section {
+    display: none;
+    animation: fadeIn 0.24s ease;
+  }
+
+  section.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h2 {
+    color: var(--primary-dark);
+    font-size: 1.45rem;
+    margin: 8px 0 18px;
+  }
+
+  .card {
+    background: linear-gradient(180deg, var(--card), var(--card-soft));
+    padding: 26px;
+    border-radius: var(--radius);
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+  }
+
+  .card h2 {
+    margin-top: 0;
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 900px;
+  }
+
+  form textarea,
+  form input[type="file"],
+  form button {
+    grid-column: 1 / -1;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d8c3ad;
+    background: white;
+    color: var(--text);
+    font: inherit;
+    outline: none;
+    transition: 0.2s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(199, 129, 76, 0.14);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  input[type="file"] {
+    background: #fff7ee;
+    border-style: dashed;
+  }
+
+  button {
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .primary {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 13px 22px;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(122, 77, 47, 0.22);
+    transition: 0.2s ease;
+  }
+
+  .primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(122, 77, 47, 0.28);
+  }
+
+  .danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-weight: 700;
+    transition: 0.2s ease;
+  }
+
+  .danger:hover {
+    background: var(--danger-dark);
+    transform: translateY(-1px);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+  }
+
+  thead {
+    position: static;
+  }
+
+  th,
+  td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #f0e1d2;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.95rem;
+  }
+
+  th {
+    background: #ead8c3;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  tbody tr {
+    transition: 0.16s ease;
+  }
+
+  tbody tr:hover {
+    background: #fff7ee;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  td select {
+    min-width: 140px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+
+  img.pet-img {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 3px solid #f1ddc6;
+    background: #f5e7d7;
+  }
+
+  #pets-list td:nth-child(6),
+  #adocoes-list td:nth-child(3),
+  #solicitacoes-list td:nth-child(6) {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  #solicitacoes-list td:nth-child(5) {
+    max-width: 280px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  #solicitacoes-list td:nth-child(1),
+  #adotantes-list td:nth-child(1),
+  #pets-list td:nth-child(2) {
+    font-weight: 800;
+    color: var(--primary-dark);
+  }
+
+  @media (max-width: 900px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    main {
+      width: min(100% - 20px, 1280px);
+      padding-top: 24px;
+    }
+
+    .tabs {
+      border-radius: 22px;
+    }
+
+    .tabs button {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    form {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    thead {
+      position: static;
+    }
+  }
+
+  @media (max-width: 560px) {
+    header strong {
+      font-size: 1.15rem;
+    }
+
+    header div div {
+      font-size: 0.85rem;
+    }
+
+    h2 {
+      font-size: 1.22rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      font-size: 0.88rem;
+    }
+
+    img.pet-img {
+      width: 58px;
+      height: 58px;
+    }
+  }
+
+  /* Mantém as tabelas utilizáveis em telas menores. */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(234, 216, 195, 0.9);
+    background: white;
+    margin-bottom: 28px;
+  }
+
+  .table-wrap table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    display: table;
+    white-space: normal;
+  }
+
+  .table-wrap thead {
+    position: static;
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    white-space: normal;
+  }
+
+  .table-wrap th {
+    white-space: nowrap;
+  }
+
+  .table-wrap td:last-child,
+  .table-wrap th:last-child {
+    text-align: center;
+  }
+
+  .table-wrap .danger {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrap table {
+      min-width: 820px;
+      display: table;
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .table-wrap table {
+      min-width: 760px;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>Dashboard Lar Bastet</strong>
+      <div>Gerenciamento de gatos, interessados, intenções, visitas e adoções</div>
+    </div>
+
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" style="background:transparent;border:0;color:inherit;cursor:pointer;font:inherit;">Sair</button>
+    </form>
+  </header>
+
+  <main>
+    <div class="message" id="message"></div>
+
+    <div class="tabs">
+      <button class="active" onclick="showTab('pets', this)">Gatos</button>
+      <button onclick="showTab('interessados', this)">Interessados</button>
+      <button onclick="showTab('interesses', this)">Intenções de adoção</button>
+      <button onclick="showTab('visitas', this)">Visitas</button>
+      <button onclick="showTab('adocoes', this)">Adoções</button>
+    </div>
+
+    <section id="pets" class="active">
+      <div class="card">
+        <h2 id="pet-form-title">Cadastrar gato</h2>
+
+        <form id="pet-form">
+          <input type="hidden" name="pet_id" value="">
+          <input name="nome" placeholder="Nome do gato" required>
+
+          <input name="idade" type="number" min="0" max="99" placeholder="Idade">
+
+          <select name="sexo" required>
+            <option value="">Sexo</option>
+            <option value="M">Macho</option>
+            <option value="F">Fêmea</option>
+          </select>
+
+          <input name="cor" placeholder="Cor">
+
+          <select name="status">
+            <option value="disponivel">Disponível</option>
+            <option value="em_analise">Em análise</option>
+            <option value="adotado">Adotado</option>
+          </select>
+
+          <textarea name="descricao" placeholder="Descrição"></textarea>
+
+          <input name="foto" type="file" accept="image/*">
+
+          <button class="primary" type="submit" id="pet-submit">Salvar gato</button>
+          <button type="button" id="cancelar-edicao-pet" hidden onclick="cancelarEdicaoPet()">Cancelar edição</button>
+        </form>
+      </div>
+
+      <h2>Gatos cadastrados</h2>
+      <div class="table-wrap">
+        <table>
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nome</th>
+            <th>Sexo</th>
+            <th>Idade</th>
+            <th>Cor</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="pets-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="interessados">
+      <h2>Interessados cadastrados</h2>
+      <p>Visualização dos interessados registrados no modelo atual. Cadastro e edição serão habilitados em etapa posterior.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>CPF</th><th>Email</th><th>Telefone</th><th>Residência</th></tr></thead>
+          <tbody id="interessados-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="interesses">
+      <h2>Intenções de adoção</h2>
+      <p>Consulte e atualize o andamento das intenções. O WhatsApp do site público permanece inalterado.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Interessado</th><th>Telefone</th><th>Gato</th><th>Mensagem</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="interesses-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="visitas">
+      <h2>Visitas agendadas</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Interessado</th><th>Gato</th><th>Data e hora</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead>
+          <tbody id="visitas-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="adocoes">
+      <h2>Adoções registradas</h2>
+      <p>Registre uma adoção somente depois de aprovar a intenção correspondente. Isso marcará o gato como adotado.</p>
+      <form id="adocao-form">
+        <label for="adocao-interesse">Intenção aprovada</label>
+        <select id="adocao-interesse" name="interesse_id" required>
+          <option value="">Selecione a intenção aprovada</option>
+        </select>
+        <label for="adocao-data">Data da adoção</label>
+        <input type="date" id="adocao-data" name="data_adocao" required>
+        <label for="adocao-observacoes">Observações</label>
+        <textarea id="adocao-observacoes" name="observacoes" maxlength="2000"></textarea>
+        <button type="submit">Registrar adoção</button>
+      </form>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Gato</th><th>Interessado</th><th>Data</th><th>Observações</th></tr></thead>
+          <tbody id="adocoes-list"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    function showMessage(text, isError = false) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.style.color = isError ? '#b23b3b' : '#2f6b35';
+
+      setTimeout(() => {
+        message.textContent = '';
+      }, 3000);
+    }
+
+    function showTab(tabId, button) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      document.querySelectorAll('.tabs button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      button.classList.add('active');
+    }
+
+  async function requestJson(url, options = {}) {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      let errorMessage = `Erro ${response.status} ao processar solicitação.`;
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.erro || errorMessage;
+      } catch {
+        const text = await response.text();
+        if (text) {
+          errorMessage = text.slice(0, 300);
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
+
+    let petsCache = [];
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[ch]);
+    }
+
+    function editarPet(id) {
+      const pet = petsCache.find(item => item.id === id);
+      if (!pet) return;
+      const form = document.getElementById('pet-form');
+      form.elements['pet_id'].value = pet.id;
+      for (const field of ['nome', 'sexo', 'idade', 'cor', 'descricao', 'status']) {
+        form.elements[field].value = pet[field] ?? '';
+      }
+      document.getElementById('pet-form-title').textContent = 'Editar gato';
+      document.getElementById('pet-submit').textContent = 'Salvar alterações';
+      document.getElementById('cancelar-edicao-pet').hidden = false;
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function cancelarEdicaoPet() {
+      const form = document.getElementById('pet-form');
+      form.reset();
+      form.elements['pet_id'].value = '';
+      document.getElementById('pet-form-title').textContent = 'Cadastrar gato';
+      document.getElementById('pet-submit').textContent = 'Salvar gato';
+      document.getElementById('cancelar-edicao-pet').hidden = true;
+    }
+
+    async function carregarPets() {
+      const pets = await requestJson('/api/dashboard/pets/');
+      petsCache = pets;
+      const tbody = document.getElementById('pets-list');
+
+      tbody.innerHTML = '';
+
+      pets.forEach(pet => {
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              ${pet.foto ? `<img class="pet-img" src="${escapeHtml(pet.foto)}" alt="${escapeHtml(pet.nome)}">` : 'Sem foto'}
+            </td>
+            <td>${escapeHtml(pet.nome)}</td>
+            <td>${escapeHtml(pet.sexo_display)}</td>
+            <td>${pet.idade || '-'}</td>
+            <td>${escapeHtml(pet.cor || '-')}</td>
+            <td>${escapeHtml(pet.status_display)}</td>
+            <td>
+              <button type="button" onclick="editarPet(${pet.id})">Editar</button>
+              <button type="button" class="danger" onclick="removerPet(${pet.id})">Remover</button>
+            </td>
+          </tr>
+        `;
+
+      });
+    }
+
+    function linhaVazia(colunas) {
+      return `<tr><td colspan="${colunas}">Nenhum registro encontrado.</td></tr>`;
+    }
+
+    function dataLocal(valor) {
+      if (!valor) return '-';
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime()) ? '-' : data.toLocaleString('pt-BR');
+    }
+
+    const statusInteresseOpcoes = {
+      pendente: 'Pendente', em_analise: 'Em análise',
+      aprovado: 'Aprovado', recusado: 'Recusado'
+    };
+    const statusVisitaOpcoes = {
+      pendente: 'Pendente', agendada: 'Agendada',
+      realizada: 'Realizada', cancelada: 'Cancelada'
+    };
+    let adocoesRegistradas = new Set();
+
+    function opcoesStatus(opcoes, selecionada) {
+      return Object.entries(opcoes).map(([valor, label]) =>
+        `<option value="${valor}" ${valor === selecionada ? 'selected' : ''}>${label}</option>`
+      ).join('');
+    }
+
+    function preencherOpcoesAdocao(interesses) {
+      const select = document.getElementById('adocao-interesse');
+      const atual = select.value;
+      const aprovados = interesses.filter(i => i.status_codigo === 'aprovado' && !adocoesRegistradas.has(i.id));
+      select.innerHTML = '<option value="">Selecione a intenção aprovada</option>' + aprovados.map(i =>
+        `<option value="${i.id}">${escapeHtml(i.pet)} — ${escapeHtml(i.interessado)}</option>`
+      ).join('');
+      if (aprovados.some(i => String(i.id) === atual)) select.value = atual;
+    }
+
+    async function salvarStatusInteresse(id) {
+      try {
+        const status = document.getElementById(`status-interesse-${id}`).value;
+        await requestJson(`/api/dashboard/interesses/${id}/status/`, {
+          method: 'POST', headers: { 'X-CSRFToken': csrftoken },
+          body: new URLSearchParams({ status }),
+        });
+        showMessage('Status da intenção atualizado.');
+        await carregarInteresses();
+      } catch (error) { showMessage(error.message, true); }
+    }
+
+    async function salvarStatusVisita(id) {
+      try {
+        const status = document.getElementById(`status-visita-${id}`).value;
+        await requestJson(`/api/dashboard/visitas/${id}/status/`, {
+          method: 'POST', headers: { 'X-CSRFToken': csrftoken },
+          body: new URLSearchParams({ status }),
+        });
+        showMessage('Status da visita atualizado.');
+        await carregarVisitas();
+      } catch (error) { showMessage(error.message, true); }
+    }
+
+    async function carregarInteressados() {
+      const lista = await requestJson('/api/dashboard/interessados/');
+      document.getElementById('interessados-list').innerHTML = lista.length ? lista.map(p => `
+        <tr>
+          <td>${escapeHtml(p.nome)}</td><td>${escapeHtml(p.cpf || '-')}</td>
+          <td>${escapeHtml(p.email || '-')}</td><td>${escapeHtml(p.telefone || '-')}</td>
+          <td>${escapeHtml(p.tipo_residencia || '-')}</td>
+        </tr>`).join('') : linhaVazia(5);
+    }
+
+    async function carregarInteresses() {
+      const lista = await requestJson('/api/dashboard/interesses/');
+      document.getElementById('interesses-list').innerHTML = lista.length ? lista.map(i => `
+        <tr>
+          <td>${escapeHtml(i.interessado)}</td><td>${escapeHtml(i.telefone || '-')}</td>
+          <td>${escapeHtml(i.pet)}</td><td>${escapeHtml(i.mensagem || '-')}</td>
+          <td>${escapeHtml(i.status)}</td><td>${escapeHtml(dataLocal(i.data_interesse))}</td>
+          <td>
+            <select id="status-interesse-${i.id}" aria-label="Status da intenção de ${escapeHtml(i.interessado)}">
+              ${opcoesStatus(statusInteresseOpcoes, i.status_codigo)}
+            </select>
+            <button type="button" onclick="salvarStatusInteresse(${i.id})">Salvar status</button>
+          </td>
+        </tr>`).join('') : linhaVazia(7);
+      preencherOpcoesAdocao(lista);
+    }
+
+    async function carregarVisitas() {
+      const lista = await requestJson('/api/dashboard/visitas/');
+      document.getElementById('visitas-list').innerHTML = lista.length ? lista.map(v => `
+        <tr>
+          <td>${escapeHtml(v.interessado)}</td><td>${escapeHtml(v.pet)}</td>
+          <td>${escapeHtml(dataLocal(v.data_hora))}</td><td>${escapeHtml(v.status)}</td>
+          <td>${escapeHtml(v.observacoes || '-')}</td>
+          <td>
+            <select id="status-visita-${v.id}" aria-label="Status da visita de ${escapeHtml(v.interessado)}">
+              ${opcoesStatus(statusVisitaOpcoes, v.status_codigo)}
+            </select>
+            <button type="button" onclick="salvarStatusVisita(${v.id})">Salvar status</button>
+          </td>
+        </tr>`).join('') : linhaVazia(6);
+    }
+
+    async function carregarAdocoes() {
+      const lista = await requestJson('/api/dashboard/adocoes/');
+      adocoesRegistradas = new Set(lista.map(a => a.interesse_id).filter(id => id != null));
+      document.getElementById('adocoes-list').innerHTML = lista.length ? lista.map(a => `
+        <tr>
+          <td>${escapeHtml(a.pet)}</td><td>${escapeHtml(a.interessado)}</td>
+          <td>${escapeHtml(a.data_adocao)}</td><td>${escapeHtml(a.observacoes || '-')}</td>
+        </tr>`).join('') : linhaVazia(4);
+    }
+
+    document.getElementById('pet-form').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      try {
+        const formData = new FormData(event.target);
+        const id = formData.get('pet_id');
+        formData.delete('pet_id');
+
+        await requestJson(id ? `/api/dashboard/pets/${id}/` : '/api/dashboard/pets/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+          body: formData,
+        });
+
+        cancelarEdicaoPet();
+        showMessage(id ? 'Gato atualizado com sucesso.' : 'Gato cadastrado com sucesso.');
+        await carregarPets();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    });
+
+    async function removerPet(id) {
+      if (!confirm('Tem certeza que deseja remover este gato?')) return;
+
+      try {
+        await requestJson(`/api/dashboard/pets/${id}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': csrftoken,
+          },
+        });
+
+        showMessage('Gato removido com sucesso.');
+        carregarPets();
+      } catch (error) {
+        showMessage(error.message, true);
+      }
+    }
+
+    const hojeLocal = new Date();
+    hojeLocal.setMinutes(hojeLocal.getMinutes() - hojeLocal.getTimezoneOffset());
+    document.getElementById('adocao-data').value = hojeLocal.toISOString().slice(0, 10);
+    document.getElementById('adocao-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!confirm('Confirma esta adoção? O gato será marcado como adotado.')) return;
+      try {
+        await requestJson('/api/dashboard/adocoes/registrar/', {
+          method: 'POST', headers: { 'X-CSRFToken': csrftoken },
+          body: new URLSearchParams(new FormData(event.target)),
+        });
+        event.target.reset();
+        showMessage('Adoção registrada.');
+        await Promise.all([carregarAdocoes(), carregarPets()]);
+        await carregarInteresses();
+      } catch (error) { showMessage(error.message, true); }
+    });
+
+    (async function inicializarDashboard() {
+      // Carrega as adoções antes das intenções para não oferecer gatos já adotados.
+      for (const consulta of [carregarPets, carregarInteressados, carregarAdocoes,
+                             carregarInteresses, carregarVisitas]) {
+        try {
+          await consulta();
+        } catch (error) {
+          showMessage(`Falha ao carregar dados: ${error.message}`, true);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
